@@ -19,11 +19,6 @@ class CreatePost extends Component {
     handleSubmit = (event) => {
         event.preventDefault();
         let data = this.state;
-        if (data['draft'] === 'on') {
-            data['draft'] = true
-        } else {
-            data['draft'] = false
-        }
         this.createPost(data)
     };
 
@@ -32,6 +27,12 @@ class CreatePost extends Component {
         this.setState({
             [event.target.name]: event.target.value
         });
+    };
+
+    handleDraftChange = () => {
+        this.setState({
+            draft: !this.state.draft
+        })
     };
 
     createPost(data) {
@@ -104,8 +105,9 @@ class CreatePost extends Component {
                 </div>
                 <div className="form-group">
                     <label htmlFor="draft">
-                        <input type="checkbox" id="draft" name='draft'className="mr-2" placeholder='Draft' onChange={this.handleInputChange}/>
+                        <input type="checkbox" checked={this.state.draft} id="draft" name='draft'className="mr-2" placeholder='Draft' onChange={this.handleDraftChange}/>
                     Draft</label>
+                    <button onClick={(event)=> {event.preventDefault();this.handleDraftChange()}}>Toggle draft</button>
                 </div>
                 <div className="form-group">
                     <label htmlFor="publish">Publish date</label>
