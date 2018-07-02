@@ -40,10 +40,11 @@ class Posts extends Component {
             })
     }
 
-    handleNewPost = (event, postItemData) => {
-        console.log(postItemData)
+    handleNewPost = (postItemData) => {
         let currentPosts = this.state.posts;
-        currentPosts.unshift(postItemData)
+        console.log(currentPosts);
+        currentPosts.push(postItemData);
+        console.log(currentPosts);
         this.setState({
             posts:currentPosts
         })

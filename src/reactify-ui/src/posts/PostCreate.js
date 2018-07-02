@@ -35,7 +35,6 @@ class CreatePost extends Component {
     };
 
     createPost(data) {
-        console.log(data);
         const endpoint = '/api/posts/';
         const csrfToken = cookie.load('csrftoken');
         const that = this;
