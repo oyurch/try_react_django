@@ -1,23 +1,36 @@
 import React, { Component } from 'react';
 import 'whatwg-fetch'
 import cookie from 'react-cookies'
+import { Link } from 'react-router-dom';
 
-import PostCreate from './PostCreate'
 import PostInline from './PostInline'
 
 class Posts extends Component {
     constructor(props) {
         super(props);
         this.togglePostsListClass = this.togglePostsListClass.bind(this)
+        this.state = {
+            posts: [],
+            postsListClass: 'card',
+            next: null,
+            previous: null,
+            author: false,
+            count: 0
+        };
     }
 
-    state = {
-        posts: [],
-        postsListClass: 'card'
+    loadMorePosts = () => {
+        const {next} = this.state;
+        if (next !== null || next !== undefined) {
+            this.loadPosts(next)
+        }
     };
 
-    loadPosts() {
-        const endpoint = '/api/posts';
+    loadPosts(nextEndpoint) {
+        let endpoint = '/api/posts/';
+        if (nextEndpoint !== undefined) {
+            endpoint = nextEndpoint
+        }
         const that = this;
         let lookupOptions = {
             method: "GET",
@@ -31,8 +44,14 @@ class Posts extends Component {
                 return response.json()
             })
             .then(function (responseData) {
+                let currentPosts = that.state.posts;
+                let newPosts = currentPosts.concat(responseData.results);
                 that.setState({
-                    posts: responseData
+                    posts: newPosts,
+                    next: responseData.next,
+                    previous: responseData.previous,
+                    author: responseData.author,
+                    count: responseData.count
                 })
             })
             .catch(function (error) {
@@ -42,9 +61,7 @@ class Posts extends Component {
 
     handleNewPost = (postItemData) => {
         let currentPosts = this.state.posts;
-        console.log(currentPosts);
         currentPosts.push(postItemData);
-        console.log(currentPosts);
         this.setState({
             posts:currentPosts
         })
@@ -68,7 +85,11 @@ class Posts extends Component {
     componentDidMount() {
         this.setState({
             posts: [],
-            postsListClass: "card"
+            postsListClass: "card",
+            next: null,
+            previous: null,
+            author: false,
+            count: 0
         });
         this.loadPosts()
     }
@@ -76,21 +97,28 @@ class Posts extends Component {
   render() {
     const {posts} = this.state;
     const {postsListClass} = this.state;
-    const csrfToken = cookie.load('csrftoken');
+    const {author} = this.state;
+    const {next} = this.state;
     return (
       <div>
         <h1>Hello world</h1>
+          <p>
+            {author === true ?
+                <Link className='mr-2'
+                    maintainScrollPosition={false}
+                    to={{
+                        pathname: `/posts/create`,
+                        state: {fromDashboard: false}
+                    }}
+                >Create post</Link>: ""}
+          </p>
           <button onClick={this.togglePostsListClass}>Toggle class</button>
           {posts.length > 0 ? posts.map((postItem, index) => {
               return (
                   <PostInline post={postItem} elClass={postsListClass}/>
               )
           }):<p>No post found</p>}
-          {(csrfToken !== undefined && csrfToken !== null) ?
-              <div className="my-5">
-                  <PostCreate newPostItemCreated={this.handleNewPost}/>
-              </div>
-          : ""}
+          {(next !== null) ? <button onClick={this.loadMorePosts}>More posts</button>: ""}
       </div>
     );
   }
