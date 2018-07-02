@@ -23,7 +23,7 @@ class PostDetail extends Component {
     render () {
         const {slug} = this.state;
         return (
-            <p>{(slug !== null) ? <div>slug</div>: ""}</p>
+            <p>{(slug !== null) ? <div>{slug}</div>: ""}</p>
         )
     }
 }
